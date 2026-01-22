@@ -15,6 +15,98 @@ import { InventoryList } from './components/InventoryList';
 // ※ モーダルの中身のコンポーネントも本来はimportしますが、
 // ここでは元のコードロジックを維持するため、App内に記述または適宜分割を想定してください。
 
+// ★ 1. 編集モーダルのコンポーネントを定義
+const EditItemModal: React.FC<{
+  isOpen: boolean;
+  item: Item | null;
+  onClose: () => void;
+  onSave: (updatedItem: Item) => void;
+  customers: Customer[];
+  categories: string[];
+}> = ({ isOpen, item, onClose, onSave, customers, categories }) => {
+  const [formData, setFormData] = useState<Partial<Item>>({});
+
+  useEffect(() => {
+    if (item) {
+      setFormData({ ...item });
+    }
+  }, [item]);
+
+  if (!isOpen || !item) return null;
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target;
+    // Tbd: handle checkbox
+    // const { name, value, type, checked } = e.target as HTMLInputElement;
+    // setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSave = () => {
+    onSave({ ...item, ...formData } as Item);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
+      <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg">
+        <h2 className="text-xl font-bold mb-4">品番情報の編集</h2>
+        <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+          {/* 各フォーム要素 */}
+          <div className="grid grid-cols-1 gap-4">
+             <label className="block">
+                <span className="text-slate-700">品番</span>
+                <input type="text" name="code" value={formData.code || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+             </label>
+             <label className="block">
+                <span className="text-slate-700">商品名</span>
+                <input type="text" name="name" value={formData.name || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+             </label>
+             <label className="block">
+                <span className="text-slate-700">顧客</span>
+                 <select name="customer" value={formData.customer || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                    <option value="">なし</option>
+                    {customers.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+                 </select>
+             </label>
+              <label className="block">
+                <span className="text-slate-700">カテゴリ</span>
+                 <select name="category" value={formData.category || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                    {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                 </select>
+             </label>
+             <label className="block">
+                <span className="text-slate-700">サイズ</span>
+                <input type="text" name="size" value={formData.size || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+             </label>
+             <label className="block">
+                <span className="text-slate-700">単価</span>
+                <input type="number" name="price" value={formData.price || 0} onChange={handleChange} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+             </label>
+             <label className="block">
+                <span className="text-slate-700">安全在庫数</span>
+                <input type="number" name="threshold" value={formData.threshold || 0} onChange={handleChange} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+             </label>
+             <label className="block">
+                <span className="text-slate-700">目標在庫数</span>
+                <input type="number" name="targetStock" value={formData.targetStock || 0} onChange={handleChange} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+             </label>
+             <label className="block">
+                <span className="text-slate-700">納期</span>
+                <input type="date" name="deadline" value={formData.deadline || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+             </label>
+          </div>
+        </div>
+        <div className="mt-6 flex justify-end space-x-3">
+          <button type="button" onClick={onClose} className="px-4 py-2 bg-slate-200 text-slate-800 rounded-md hover:bg-slate-300">キャンセル</button>
+          <button type="button" onClick={handleSave} className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">保存</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
 export default function App() {
   // ステート管理
   const [items, setItems] = useState<Item[]>(initialData);
@@ -39,9 +131,10 @@ export default function App() {
   const [viewingProcess, setViewingProcess] = useState<string | null>(null);
   const [viewingStockType, setViewingStockType] = useState<ProcessType | null>(null);
   
-  // その他すべてのステート（モーダル開閉、入力フォーム等）は元のコードと同様に記述
-  // ... (省略せずに元のコードから必要なuseStateをすべて記述してください) ...
-  // 例:
+  // ★ 2. 編集モーダル用のステートを追加
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<Item | null>(null);
+
   const [isStockModalOpen, setIsStockModalOpen] = useState(false);
   const [dialogConfig, setDialogConfig] = useState<{isOpen: boolean; type: 'CONFIRM'|'ALERT'; title: string; message: string; onConfirm?: ()=>void}>({isOpen:false, type:'ALERT', title:'', message:''});
   
@@ -77,11 +170,36 @@ export default function App() {
     });
   };
 
-  // ... (その他のハンドラ関数は元のコードからコピー) ...
+  // ★ 3. 編集モーダルを開く関数を定義
+  const openEditModal = (item: Item) => {
+    setEditingItem(item);
+    setIsEditModalOpen(true);
+  };
+  
+  // ★ 4. 編集モーダルを閉じる関数を定義
+  const closeEditModal = () => {
+    setEditingItem(null);
+    setIsEditModalOpen(false);
+  };
+
+  // ★ 5. アイテムを更新する関数を定義
+  const handleUpdateItem = (updatedItem: Item) => {
+    setItems(prevItems => prevItems.map(item => item.id === updatedItem.id ? updatedItem : item));
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans">
       <CustomDialog config={dialogConfig} onClose={closeDialog} onConfirm={handleDialogConfirm} />
+      
+      {/* ★ 6. 編集モーダルをレンダリング */}
+      <EditItemModal 
+        isOpen={isEditModalOpen}
+        item={editingItem}
+        onClose={closeEditModal}
+        onSave={handleUpdateItem}
+        customers={customers}
+        categories={categories}
+      />
 
       {/* ヘッダー */}
       <header className="bg-indigo-800 text-white shadow-lg sticky top-0 z-20">
@@ -128,7 +246,7 @@ export default function App() {
           isLowStockFilterActive={isLowStockFilterActive} setIsLowStockFilterActive={setIsLowStockFilterActive}
           isDeadlineFilterActive={isDeadlineFilterActive} setIsDeadlineFilterActive={setIsDeadlineFilterActive}
           isRawMaterialShortageFilterActive={isRawMaterialShortageFilterActive} setIsRawMaterialShortageFilterActive={setIsRawMaterialShortageFilterActive}
-          openEditModal={() => {/* openEditModalの実装 */}}
+          openEditModal={openEditModal}
           deleteItem={deleteItem}
         />
       </main>
