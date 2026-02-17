@@ -5,7 +5,7 @@ import {
   Settings, Users, Database, Plus 
 } from 'lucide-react';
 
-// ƒwƒbƒ_[‚ªó‚¯æ‚éPropsie‚©‚ç“n‚³‚ê‚éŠÖ”‚â’lj‚Ì’è‹`
+// ãƒ˜ãƒƒãƒ€ãƒ¼ãŒå—ã‘å–ã‚‹Propsï¼ˆè¦ªã‹ã‚‰æ¸¡ã•ã‚Œã‚‹é–¢æ•°ã‚„å€¤ï¼‰ã®å®šç¾©
 interface HeaderProps {
   isFullscreen: boolean;
   toggleFullscreen: () => void;
@@ -34,16 +34,16 @@ export const Header: React.FC<HeaderProps> = ({
           <div>
             <h1 className="text-xl md:text-2xl font-bold flex items-center gap-2">
               <Package className="h-6 w-6 md:h-8 md:w-8" />
-              wakenİŒÉŠÇ—
+              wakenåœ¨åº«ç®¡ç†
             </h1>
           </div>
           <div className="flex items-center gap-2">
-            {/* ‘S‰æ–Êƒ{ƒ^ƒ“ */}
+            {/* å…¨ç”»é¢ãƒœã‚¿ãƒ³ */}
              <button 
               type="button"
               onClick={toggleFullscreen}
               className="p-2 bg-indigo-700 hover:bg-indigo-600 rounded-lg transition-colors text-indigo-100 hidden md:flex items-center gap-1"
-              title="‘S‰æ–Ê•\¦Ø‚è‘Ö‚¦"
+              title="å…¨ç”»é¢è¡¨ç¤ºåˆ‡ã‚Šæ›¿ãˆ"
             >
                {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
             </button>
@@ -52,47 +52,47 @@ export const Header: React.FC<HeaderProps> = ({
               type="button"
               onClick={() => setIsAssemblyModalOpen(true)}
               className="p-2 bg-indigo-700 hover:bg-indigo-600 rounded-lg transition-colors text-indigo-100 flex items-center gap-1"
-              title="” ‹lEƒZƒbƒg‘g"
+              title="ç®±è©°ãƒ»ã‚»ãƒƒãƒˆçµ„"
             >
               <Blocks size={20} />
-              <span className="hidden md:inline text-xs font-bold ml-1">” ‹lE‰ÁH</span>
+              <span className="hidden md:inline text-xs font-bold ml-1">ç®±è©°ãƒ»åŠ å·¥</span>
             </button>
 
             <button 
               type="button"
               onClick={() => setIsInventoryValuationOpen(true)}
               className="p-2 bg-indigo-700 hover:bg-indigo-600 rounded-lg transition-colors text-indigo-100 flex items-center gap-1"
-              title="’I‰µE‘Y•]‰¿"
+              title="æ£šå¸ãƒ»è³‡ç”£è©•ä¾¡"
             >
               <ClipboardList size={20} />
-              <span className="hidden md:inline text-xs font-bold ml-1">’I‰µE‘Y</span>
+              <span className="hidden md:inline text-xs font-bold ml-1">æ£šå¸ãƒ»è³‡ç”£</span>
             </button>
             <button 
               type="button"
               onClick={() => setIsSettingsOpen(true)}
               className="p-2 bg-indigo-700 hover:bg-indigo-600 rounded-lg transition-colors text-indigo-100 flex items-center gap-1"
-              title="H’öƒ}ƒXƒ^İ’è"
+              title="å·¥ç¨‹ãƒã‚¹ã‚¿è¨­å®š"
             >
               <Settings size={20} />
-              <span className="hidden md:inline text-xs font-bold ml-1">H’öƒ}ƒXƒ^</span>
+              <span className="hidden md:inline text-xs font-bold ml-1">å·¥ç¨‹ãƒã‚¹ã‚¿</span>
             </button>
             <button 
               type="button"
               onClick={() => setIsCustomerModalOpen(true)}
               className="p-2 bg-indigo-700 hover:bg-indigo-600 rounded-lg transition-colors text-indigo-100 flex items-center gap-1"
-              title="ŒÚ‹qƒ}ƒXƒ^ŠÇ—"
+              title="é¡§å®¢ãƒã‚¹ã‚¿ç®¡ç†"
             >
               <Users size={20} />
-              <span className="hidden md:inline text-xs font-bold ml-1">ŒÚ‹qƒ}ƒXƒ^</span>
+              <span className="hidden md:inline text-xs font-bold ml-1">é¡§å®¢ãƒã‚¹ã‚¿</span>
             </button>
             <button 
               type="button"
               onClick={() => setIsMasterModalOpen(true)}
               className="p-2 bg-indigo-700 hover:bg-indigo-600 rounded-lg transition-colors text-indigo-100 flex items-center gap-1"
-              title="¤•iƒ}ƒXƒ^ŠÇ—"
+              title="å•†å“ãƒã‚¹ã‚¿ç®¡ç†"
             >
               <Database size={20} />
-              <span className="hidden md:inline text-xs font-bold ml-1">¤•iƒ}ƒXƒ^</span>
+              <span className="hidden md:inline text-xs font-bold ml-1">å•†å“ãƒã‚¹ã‚¿</span>
             </button>
             <button 
               type="button"
@@ -100,7 +100,7 @@ export const Header: React.FC<HeaderProps> = ({
               className="bg-indigo-600 hover:bg-indigo-500 border border-indigo-400 text-white px-3 py-2 md:px-4 md:py-2 rounded-lg font-medium transition-colors flex items-center gap-2 shadow-sm text-sm md:text-base"
             >
               <Plus size={18} />
-              V‹K•i”Ô“o˜^
+              æ–°è¦å“ç•ªç™»éŒ²
             </button>
           </div>
         </div>

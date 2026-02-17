@@ -1,30 +1,30 @@
 // src/types/index.ts
 
-// ’è”’è‹`
-export const NO_LOT_ID = 'STOCK'; // ƒƒbƒgŠÇ—‚µ‚È‚¢ê‡‚ÌID
+// å®šæ•°å®šç¾©
+export const NO_LOT_ID = 'STOCK'; // ãƒ­ãƒƒãƒˆç®¡ç†ã—ãªã„å ´åˆã®ID
 
-// Œ^’è‹`
+// å‹å®šç¾©
 export interface Lot {
   lotNo: string;
   quantity: number;
-  process: string; // Œ»İ‚ÌH’öiêŠj
+  process: string; // ç¾åœ¨ã®å·¥ç¨‹ï¼ˆå ´æ‰€ï¼‰
   receivedDate: string;
 }
 
 export interface Item {
   id: number;
-  code: string; // •i”Ô
-  name: string; // ¤•i–¼
-  customer: string; // ŒÚ‹q–¼iæˆøæj
-  category: string; // ‘fŞƒJƒeƒSƒŠ
-  packaging: string; // ‰×p (ƒoƒ‰, ” , ƒZƒbƒg)
+  code: string; // å“ç•ª
+  name: string; // å•†å“å
+  customer: string; // é¡§å®¢åï¼ˆå–å¼•å…ˆï¼‰
+  category: string; // ç´ æã‚«ãƒ†ã‚´ãƒª
+  packaging: string; // è·å§¿ (ãƒãƒ©, ç®±, ã‚»ãƒƒãƒˆ)
   size: string;
-  threshold: number; // ”­’“_
-  targetStock: number; // •K—vİŒÉ”
-  productionLotSize: number; // ¶Yƒƒbƒg”
-  price: number; // •W€’P‰¿i»•i’P‰¿j
-  processPrices?: Record<string, number>; // H’ö•Ê’P‰¿
-  deadline: string; // ”[Šú (YYYY-MM-DD)
+  threshold: number; // ç™ºæ³¨ç‚¹
+  targetStock: number; // å¿…è¦åœ¨åº«æ•°
+  productionLotSize: number; // ç”Ÿç”£ãƒ­ãƒƒãƒˆæ•°
+  price: number; // æ¨™æº–å˜ä¾¡ï¼ˆè£½å“å˜ä¾¡ï¼‰
+  processPrices?: Record<string, number>; // å·¥ç¨‹åˆ¥å˜ä¾¡
+  deadline: string; // ç´æœŸ (YYYY-MM-DD)
   lots: Lot[];
 }
 
@@ -33,16 +33,16 @@ export interface Customer {
   name: string;
 }
 
-// H’ö‚Ìƒ^ƒCƒv’è‹`
-// WIP: dŠ|•i, PRODUCT: »•i, BOXED: ” “ü‚ê•i, ALL: ‘SİŒÉ
+// å·¥ç¨‹ã®ã‚¿ã‚¤ãƒ—å®šç¾©
+// WIP: ä»•æ›å“, PRODUCT: è£½å“, BOXED: ç®±å…¥ã‚Œå“, ALL: å…¨åœ¨åº«
 export type ProcessType = 'WIP' | 'PRODUCT' | 'BOXED' | 'ALL';
 
-// •À‚Ñ‘Ö‚¦ƒIƒvƒVƒ‡ƒ“‚ÌŒ^’è‹`
+// ä¸¦ã³æ›¿ãˆã‚ªãƒ—ã‚·ãƒ§ãƒ³ã®å‹å®šç¾©
 export type SortOption = 'default' | 'code_asc' | 'stock_desc' | 'stock_asc' | 'deadline_asc';
 
-// ‰ÁHŒ³ƒAƒCƒeƒ€‚ÌŒ^’è‹`
+// åŠ å·¥å…ƒã‚¢ã‚¤ãƒ†ãƒ ã®å‹å®šç¾©
 export type AssemblySourceItem = {
-  uid: string; // ˆêˆÓ‚ÌIDiíœ—pj
+  uid: string; // ä¸€æ„ã®IDï¼ˆå‰Šé™¤ç”¨ï¼‰
   itemId: string;
   lotNo: string;
   quantity: number;

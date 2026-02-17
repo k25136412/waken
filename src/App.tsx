@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Header } from './components/layout/Header';
+import { Lot, Item, Customer, ProcessType, SortOption, AssemblySourceItem, NO_LOT_ID } from './types';
 import { 
   Plus, Minus, Search, Package, AlertTriangle, Trash2, Save, X, 
   ChevronDown, ChevronUp, ClipboardList, ArrowRightLeft, Settings, 
@@ -8,43 +10,6 @@ import {
 
 // 定数定義
 const NO_LOT_ID = 'STOCK'; // ロット管理しない場合のID
-
-// 型定義
-interface Lot {
-  lotNo: string;
-  quantity: number;
-  process: string; // 現在の工程（場所）
-  receivedDate: string;
-}
-
-interface Item {
-  id: number;
-  code: string; // 品番
-  name: string; // 商品名
-  customer: string; // 顧客名（取引先）
-  category: string; // 素材カテゴリ
-  packaging: string; // 荷姿 (バラ, 箱, セット)
-  size: string;
-  threshold: number; // 発注点
-  targetStock: number; // 必要在庫数
-  productionLotSize: number; // 生産ロット数
-  price: number; // 標準単価（製品単価）
-  processPrices?: Record<string, number>; // 工程別単価
-  deadline: string; // 納期 (YYYY-MM-DD)
-  lots: Lot[];
-}
-
-interface Customer {
-  id: number;
-  name: string;
-}
-
-// 工程のタイプ定義
-// WIP: 仕掛品, PRODUCT: 製品, BOXED: 箱入れ品, ALL: 全在庫
-type ProcessType = 'WIP' | 'PRODUCT' | 'BOXED' | 'ALL';
-
-// 並び替えオプションの型定義
-type SortOption = 'default' | 'code_asc' | 'stock_desc' | 'stock_asc' | 'deadline_asc';
 
 // 初期工程マスタ (名前)
 const initialProcessNames = [
@@ -213,15 +178,6 @@ const getDaysUntil = (dateStr: string) => {
   const target = new Date(dateStr);
   const diffTime = target.getTime() - today.getTime();
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-};
-
-// 加工元アイテムの型定義
-type AssemblySourceItem = {
-  uid: string; // 一意のID（削除用）
-  itemId: string;
-  lotNo: string;
-  quantity: number;
-  process: string;
 };
 
 // 荷姿のバッジコンポーネント
@@ -990,85 +946,16 @@ export default function App() {
 
       {/* 2. ヘッダー (z-20) */}
       {/* ヘッダー */}
-      <header className="bg-indigo-800 text-white shadow-lg sticky top-0 z-20" style={{zIndex: 20}}>
-        <div className="w-full px-4 py-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-xl md:text-2xl font-bold flex items-center gap-2">
-                <Package className="h-6 w-6 md:h-8 md:w-8" />
-                waken在庫管理
-              </h1>
-            </div>
-            <div className="flex items-center gap-2">
-              {/* 全画面ボタン */}
-               <button 
-                type="button"
-                onClick={toggleFullscreen}
-                className="p-2 bg-indigo-700 hover:bg-indigo-600 rounded-lg transition-colors text-indigo-100 hidden md:flex items-center gap-1"
-                title="全画面表示切り替え"
-              >
-                 {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
-              </button>
-
-              <button 
-                type="button"
-                onClick={() => setIsAssemblyModalOpen(true)}
-                className="p-2 bg-indigo-700 hover:bg-indigo-600 rounded-lg transition-colors text-indigo-100 flex items-center gap-1"
-                title="箱詰・セット組"
-              >
-                <Blocks size={20} />
-                <span className="hidden md:inline text-xs font-bold ml-1">箱詰・加工</span>
-              </button>
-
-              <button 
-                type="button"
-                onClick={() => setIsInventoryValuationOpen(true)}
-                className="p-2 bg-indigo-700 hover:bg-indigo-600 rounded-lg transition-colors text-indigo-100 flex items-center gap-1"
-                title="棚卸・資産評価"
-              >
-                <ClipboardList size={20} />
-                <span className="hidden md:inline text-xs font-bold ml-1">棚卸・資産</span>
-              </button>
-              <button 
-                type="button"
-                onClick={() => setIsSettingsOpen(true)}
-                className="p-2 bg-indigo-700 hover:bg-indigo-600 rounded-lg transition-colors text-indigo-100 flex items-center gap-1"
-                title="工程マスタ設定"
-              >
-                <Settings size={20} />
-                <span className="hidden md:inline text-xs font-bold ml-1">工程マスタ</span>
-              </button>
-              <button 
-                type="button"
-                onClick={() => setIsCustomerModalOpen(true)}
-                className="p-2 bg-indigo-700 hover:bg-indigo-600 rounded-lg transition-colors text-indigo-100 flex items-center gap-1"
-                title="顧客マスタ管理"
-              >
-                <Users size={20} />
-                <span className="hidden md:inline text-xs font-bold ml-1">顧客マスタ</span>
-              </button>
-              <button 
-                type="button"
-                onClick={() => setIsMasterModalOpen(true)}
-                className="p-2 bg-indigo-700 hover:bg-indigo-600 rounded-lg transition-colors text-indigo-100 flex items-center gap-1"
-                title="商品マスタ管理"
-              >
-                <Database size={20} />
-                <span className="hidden md:inline text-xs font-bold ml-1">商品マスタ</span>
-              </button>
-              <button 
-                type="button"
-                onClick={openNewItemModal}
-                className="bg-indigo-600 hover:bg-indigo-500 border border-indigo-400 text-white px-3 py-2 md:px-4 md:py-2 rounded-lg font-medium transition-colors flex items-center gap-2 shadow-sm text-sm md:text-base"
-              >
-                <Plus size={18} />
-                新規品番登録
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-      
+      <Header 
+  isFullscreen={isFullscreen}
+  toggleFullscreen={toggleFullscreen}
+  setIsAssemblyModalOpen={setIsAssemblyModalOpen}
+  setIsInventoryValuationOpen={setIsInventoryValuationOpen}
+  setIsSettingsOpen={setIsSettingsOpen}
+  setIsCustomerModalOpen={setIsCustomerModalOpen}
+  setIsMasterModalOpen={setIsMasterModalOpen}
+  openNewItemModal={openNewItemModal}
+/>      
       {/* 3. メインコンテンツ */}
       <main className="w-full px-4 py-6 md:py-8">
         {/* ダッシュボード */}
