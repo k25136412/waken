@@ -1,15 +1,20 @@
+// src/App.tsx
 import React, { useState, useEffect } from 'react';
-import { Header } from './components/layout/Header';
-import { Lot, Item, Customer, ProcessType, SortOption, AssemblySourceItem, NO_LOT_ID } from './types';
 import { 
   Plus, Minus, Search, Package, AlertTriangle, Trash2, Save, X, 
-  ChevronDown, ChevronUp, ClipboardList, ArrowRightLeft, Settings, 
-  Truck, MapPin, Filter, LogOut, List, Tag, CheckSquare, Square,
-  Database, Edit, TrendingUp, Factory, Box, Users, Building2, CheckCircle2, Calendar, JapaneseYen, Clock, PieChart, ArrowUpDown, AlertCircle, Maximize, Minimize, Blocks, Gift, Layers, Archive, Merge, Scissors
+  ChevronDown, ChevronUp, ArrowRightLeft, Truck, MapPin, LogOut, 
+  List, Tag, CheckSquare, Square, Edit, Factory, Box, Users, 
+  Building2, CheckCircle2, Calendar, JapaneseYen, Clock, PieChart, 
+  ArrowUpDown, AlertCircle, Blocks, Gift, Layers, Archive, Merge, Scissors,
+  ClipboardList, Settings, Database
 } from 'lucide-react';
 
-// 定数定義
-const NO_LOT_ID = 'STOCK'; // ロット管理しない場合のID
+// 切り出した型とヘッダーを読み込む
+import { 
+  Item, Lot, Customer, ProcessType, SortOption, 
+  AssemblySourceItem, NO_LOT_ID 
+} from './types';
+import { Header } from './components/layout/Header';
 
 // 初期工程マスタ (名前)
 const initialProcessNames = [
@@ -911,7 +916,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans">
-      {/* 1. カスタム確認・アラートダイアログ (最前面 z-9999) */}
+      {/* 1. カスタム確認・アラートダイアログ */}
       {dialogConfig.isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4" style={{zIndex: 9999}}>
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden animate-fade-in">
@@ -944,18 +949,18 @@ export default function App() {
         </div>
       )}
 
-      {/* 2. ヘッダー (z-20) */}
-      {/* ヘッダー */}
-      <Header 
-  isFullscreen={isFullscreen}
-  toggleFullscreen={toggleFullscreen}
-  setIsAssemblyModalOpen={setIsAssemblyModalOpen}
-  setIsInventoryValuationOpen={setIsInventoryValuationOpen}
-  setIsSettingsOpen={setIsSettingsOpen}
-  setIsCustomerModalOpen={setIsCustomerModalOpen}
-  setIsMasterModalOpen={setIsMasterModalOpen}
-  openNewItemModal={openNewItemModal}
-/>      
+      {/* 2. 切り出したヘッダーコンポーネント */}
+      <Header
+        isFullscreen={isFullscreen}
+        toggleFullscreen={toggleFullscreen}
+        setIsAssemblyModalOpen={setIsAssemblyModalOpen}
+        setIsInventoryValuationOpen={setIsInventoryValuationOpen}
+        setIsSettingsOpen={setIsSettingsOpen}
+        setIsCustomerModalOpen={setIsCustomerModalOpen}
+        setIsMasterModalOpen={setIsMasterModalOpen}
+        openNewItemModal={openNewItemModal}
+      />
+      
       {/* 3. メインコンテンツ */}
       <main className="w-full px-4 py-6 md:py-8">
         {/* ダッシュボード */}
@@ -1082,8 +1087,6 @@ export default function App() {
 
         {/* 検索とリスト */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-          {/* ... (テーブル部分) ... */}
-           {/* 省略せず記述 */}
           <div className={`p-4 border-b transition-colors flex flex-col md:flex-row items-start md:items-center gap-4 ${isLowStockFilterActive ? 'bg-amber-50 border-amber-100' : isDeadlineFilterActive ? 'bg-rose-50 border-rose-100' : isRawMaterialShortageFilterActive ? 'bg-purple-50 border-purple-100' : 'bg-slate-50 border-slate-100'}`}>
             <div className="flex-1 w-full md:max-w-4xl flex flex-col md:flex-row gap-3">
               <div className="relative flex-1">
@@ -1165,7 +1168,6 @@ export default function App() {
             </div>
           </div>
           
-          {/* ... (以下のテーブル部分は前回と同じなので省略なしで記述) ... */}
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
@@ -1562,7 +1564,6 @@ export default function App() {
       {/* 2. 工程別詳細ポップアップ */}
       {viewingProcess && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4" style={{zIndex: 50}}>
-           {/* ... (省略せず記述) ... */}
            <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col animate-fade-in overflow-hidden relative">
             <div className="bg-indigo-800 px-6 py-4 flex justify-between items-center text-white shrink-0">
               <h2 className="font-bold text-lg flex items-center gap-2">
@@ -1748,7 +1749,6 @@ export default function App() {
                     const value = valuationByProcess[process] || 0;
                     if (value === 0) return null;
                     const percentage = (value / inventoryValue) * 100;
-                    // 色を簡易的に生成（インデックスに基づいて）
                     const colors = ['bg-indigo-500', 'bg-blue-500', 'bg-sky-500', 'bg-cyan-500', 'bg-teal-500', 'bg-emerald-500', 'bg-green-500', 'bg-lime-500', 'bg-yellow-500'];
                     const colorClass = colors[idx % colors.length];
                     
@@ -1794,7 +1794,6 @@ export default function App() {
               <button type="button" onClick={() => setIsSettingsOpen(false)} className="opacity-80 hover:opacity-100"><X size={24} /></button>
             </div>
             
-            {/* タブ切り替え */}
             <div className="flex border-b border-slate-200">
               <button 
                 type="button"
@@ -2118,7 +2117,6 @@ export default function App() {
                   <ArrowUpDown size={24} />
                 </div>
 
-                {/* 2. 加工先 (After) */}
                 <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-100">
                   <h3 className="text-sm font-bold text-indigo-800 mb-3 flex items-center gap-2">
                     <span className="bg-indigo-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs">2</span>
@@ -2153,7 +2151,6 @@ export default function App() {
                           <span className="text-indigo-600 -ml-6 text-sm">個</span>
                         </div>
                       </div>
-                      {/* 新しいロットNo入力欄は削除済み (自動でSTOCK扱い) */}
                     </div>
                     
                     <div>
@@ -2365,8 +2362,6 @@ export default function App() {
                   </select>
                 </div>
 
-                {/* ロットNo入力エリア */}
-                {/* 移動先が製品・箱入れの場合は自動統合のため入力不要（表示切替） */}
                 {transactionType === 'MOVE' && (processTypes[transactionData.targetProcess] === 'PRODUCT' || processTypes[transactionData.targetProcess] === 'BOXED') ? (
                     <div className="p-3 bg-blue-50 border border-blue-100 rounded text-sm text-blue-800 flex items-start gap-2">
                        <Merge size={18} className="shrink-0 mt-0.5" />
@@ -2375,7 +2370,6 @@ export default function App() {
                        </div>
                     </div>
                 ) : (
-                    // 通常のロット入力（統合オプション付き）
                      <div>
                       <div className="flex justify-between items-center mb-2">
                          <label className="block text-sm font-medium text-slate-700">反番 / ロットNo</label>
@@ -2398,7 +2392,6 @@ export default function App() {
                           {transactionType === 'IN' ? (
                             <input required type="text" className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none uppercase font-mono" placeholder="例: 24-A001" value={transactionData.lotNo} onChange={(e) => setTransactionData({...transactionData, lotNo: e.target.value})} list="lot-suggestions" />
                           ) : (
-                            // 移動・出庫時は元ロットを選択
                             <select required className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-mono" value={transactionData.lotNo} onChange={(e) => {
                                 const lot = selectedItem.lots.find(l => l.lotNo === e.target.value && l.quantity > 0);
                                 setTransactionData({ ...transactionData, lotNo: e.target.value, process: lot ? lot.process : processes[0] });

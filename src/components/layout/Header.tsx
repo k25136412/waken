@@ -1,11 +1,9 @@
-// src/components/layout/Header.tsx
 import React from 'react';
 import { 
   Package, Minimize, Maximize, Blocks, ClipboardList, 
   Settings, Users, Database, Plus 
 } from 'lucide-react';
 
-// ヘッダーが受け取るProps（親から渡される関数や値）の定義
 interface HeaderProps {
   isFullscreen: boolean;
   toggleFullscreen: () => void;
@@ -38,7 +36,6 @@ export const Header: React.FC<HeaderProps> = ({
             </h1>
           </div>
           <div className="flex items-center gap-2">
-            {/* 全画面ボタン */}
              <button 
               type="button"
               onClick={toggleFullscreen}
@@ -47,22 +44,18 @@ export const Header: React.FC<HeaderProps> = ({
             >
                {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
             </button>
-
             <button 
               type="button"
               onClick={() => setIsAssemblyModalOpen(true)}
               className="p-2 bg-indigo-700 hover:bg-indigo-600 rounded-lg transition-colors text-indigo-100 flex items-center gap-1"
-              title="箱詰・セット組"
             >
               <Blocks size={20} />
               <span className="hidden md:inline text-xs font-bold ml-1">箱詰・加工</span>
             </button>
-
             <button 
               type="button"
               onClick={() => setIsInventoryValuationOpen(true)}
               className="p-2 bg-indigo-700 hover:bg-indigo-600 rounded-lg transition-colors text-indigo-100 flex items-center gap-1"
-              title="棚卸・資産評価"
             >
               <ClipboardList size={20} />
               <span className="hidden md:inline text-xs font-bold ml-1">棚卸・資産</span>
@@ -71,7 +64,6 @@ export const Header: React.FC<HeaderProps> = ({
               type="button"
               onClick={() => setIsSettingsOpen(true)}
               className="p-2 bg-indigo-700 hover:bg-indigo-600 rounded-lg transition-colors text-indigo-100 flex items-center gap-1"
-              title="工程マスタ設定"
             >
               <Settings size={20} />
               <span className="hidden md:inline text-xs font-bold ml-1">工程マスタ</span>
@@ -80,7 +72,6 @@ export const Header: React.FC<HeaderProps> = ({
               type="button"
               onClick={() => setIsCustomerModalOpen(true)}
               className="p-2 bg-indigo-700 hover:bg-indigo-600 rounded-lg transition-colors text-indigo-100 flex items-center gap-1"
-              title="顧客マスタ管理"
             >
               <Users size={20} />
               <span className="hidden md:inline text-xs font-bold ml-1">顧客マスタ</span>
@@ -89,7 +80,6 @@ export const Header: React.FC<HeaderProps> = ({
               type="button"
               onClick={() => setIsMasterModalOpen(true)}
               className="p-2 bg-indigo-700 hover:bg-indigo-600 rounded-lg transition-colors text-indigo-100 flex items-center gap-1"
-              title="商品マスタ管理"
             >
               <Database size={20} />
               <span className="hidden md:inline text-xs font-bold ml-1">商品マスタ</span>
