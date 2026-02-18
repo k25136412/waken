@@ -1,6 +1,7 @@
 // src/firebase/config.ts
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
 // ⚠️ ここをご自身のFirebaseコンソールで表示された内容に書き換えてください
 const firebaseConfig = {
@@ -17,3 +18,9 @@ const app = initializeApp(firebaseConfig);
 
 // Firestoreデータベースへの接続用オブジェクト
 export const db = getFirestore(app);
+
+export const auth = getAuth(app);
+
+// ★追加：管理者用のサブアプリ（ユーザー追加時に自分が強制ログアウトされないための裏技）
+const secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
+export const secondaryAuth = getAuth(secondaryApp);

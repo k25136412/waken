@@ -4,7 +4,8 @@ import {
   Plus, Minus, Search, Package, AlertTriangle, Trash2, Save, X, 
   ArrowRightLeft, Truck, MapPin, LogOut, CheckSquare, Square, 
   Edit, Factory, Box, Users, Building2, Calendar, 
-  JapaneseYen, AlertCircle, Blocks, Layers, Merge, ClipboardList, Database, Settings, Archive, ArrowUpDown
+  JapaneseYen, AlertCircle, Blocks, Layers, Merge, ClipboardList, Database, Settings, Archive, ArrowUpDown,
+  Lock, UserPlus, CheckCircle2 // ★ログイン機能用に追加
 } from 'lucide-react';
 
 import { 
@@ -19,9 +20,10 @@ import { ItemTable } from './components/tables/ItemTable';
 // Firebase用のHooksを読み込み
 import { useItems } from './hooks/useItems';
 import { useMasters } from './hooks/useMasters';
+import { useAuth } from './hooks/useAuth'; // ★認証用Hooksを追加
 
 // ==========================================
-// 初期データ（Firebaseへの初回アップロード用）
+// 初期データ
 // ==========================================
 const initialProcessNames = ['第一織場', '第二織場', '2F倉庫', '染工場', '起毛場', 'ミシン工場', 'ミシン場倉庫', '村田倉庫', '藤原運送'];
 const initialProcessTypes: Record<string, ProcessType> = {
@@ -47,9 +49,23 @@ const getDaysUntil = (dateStr: string) => {
 };
 
 export default function App() {
+  // ★ Firebase Hooks
   const { items, loadingItems, saveItem, saveMultipleItems, deleteItemFromDb } = useItems();
   const { processes, processTypes, categories, customers, loadingMasters, saveProcesses, saveCategories, saveCustomers } = useMasters();
+  const { currentUser, loadingAuth, login, logout, registerNewUser } = useAuth(); // ★追加
 
+  // ★ ログイン画面用ステート
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+
+  // ★ ユーザー管理モーダル用ステート
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const [regEmail, setRegEmail] = useState('');
+  const [regPassword, setRegPassword] = useState('');
+  const [regMessage, setRegMessage] = useState({ type: '', text: '' });
+
+  // 画面表示ステート
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCustomerFilter, setSelectedCustomerFilter] = useState('');
@@ -59,6 +75,7 @@ export default function App() {
   const [isDeadlineFilterActive, setIsDeadlineFilterActive] = useState(false);
   const [isRawMaterialShortageFilterActive, setIsRawMaterialShortageFilterActive] = useState(false);
 
+  // 詳細表示・選択用ステート
   const [viewingProcess, setViewingProcess] = useState<string | null>(null);
   const [viewingStockType, setViewingStockType] = useState<ProcessType | null>(null);
   const [isSelectingItem, setIsSelectingItem] = useState(false);
@@ -67,6 +84,7 @@ export default function App() {
   const [isBulkMoveModalOpen, setIsBulkMoveModalOpen] = useState(false);
   const [bulkTargetProcess, setBulkTargetProcess] = useState('');
 
+  // モーダル管理ステート
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [isStockModalOpen, setIsStockModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -75,12 +93,14 @@ export default function App() {
   const [isInventoryValuationOpen, setIsInventoryValuationOpen] = useState(false);
   const [isAssemblyModalOpen, setIsAssemblyModalOpen] = useState(false);
   
+  // 設定用ステート
   const [activeSettingsTab, setActiveSettingsTab] = useState<'PROCESS' | 'CATEGORY'>('PROCESS');
   const [newProcessName, setNewProcessName] = useState('');
   const [newProcessType, setNewProcessType] = useState<ProcessType>('WIP');
   const [newCategoryName, setNewCategoryName] = useState('');
   const [newCustomerName, setNewCustomerName] = useState('');
 
+  // フォーム用ステート
   const [assemblySources, setAssemblySources] = useState<AssemblySourceItem[]>([{ uid: 'init-1', itemId: '', lotNo: '', quantity: 1, process: '' }]);
   const [assemblyTarget, setAssemblyTarget] = useState({ targetItemId: '', targetQuantity: 1, process: '', newLotNo: '' });
   const [transactionType, setTransactionType] = useState<'IN' | 'OUT' | 'MOVE'>('IN');
@@ -365,19 +385,85 @@ export default function App() {
   const closeProcessModal = () => { setViewingProcess(null); setIsSelectingItem(false); setItemSearchTerm(''); setSelectedLots(new Set()); };
   const handleProcessPriceChange = (process: string, value: string) => setNewItem(prev => ({ ...prev, processPrices: { ...prev.processPrices, [process]: Number(value) } }));
 
-  if (loadingItems || loadingMasters) {
+  // ==========================================
+  // ★ 画面表示の分岐（認証状態による切り替え）
+  // ==========================================
+
+  // 1. 読み込み中の画面
+  if (loadingAuth || loadingItems || loadingMasters) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-indigo-600 font-bold flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
-          Firebaseからデータを読み込んでいます...
+          システムを準備しています...
         </div>
       </div>
     );
   }
 
+  // 2. ログインしていない場合の画面（ログインフォーム）
+  if (!currentUser) {
+    const handleLogin = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setLoginError('');
+      try {
+        await login(loginEmail, loginPassword);
+      } catch (err: any) {
+        setLoginError('メールアドレスまたはパスワードが間違っています。');
+      }
+    };
+
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-100 p-4">
+        <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-fade-in">
+          <div className="bg-indigo-800 px-6 py-8 text-center text-white">
+            <h1 className="text-2xl font-bold flex items-center justify-center gap-2"><Package size={28} /> 在庫管理システム</h1>
+            <p className="text-indigo-200 mt-2 text-sm">システムにログインしてください</p>
+          </div>
+          <div className="p-8">
+            {loginError && (
+              <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-4 flex items-center gap-2 font-bold">
+                <AlertTriangle size={16}/>{loginError}
+              </div>
+            )}
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">ログイン用アドレス</label>
+                <input type="email" required className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} placeholder="admin@waken.local" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">パスワード</label>
+                <input type="password" required className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} placeholder="••••••••" />
+              </div>
+              <button type="submit" className="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 transition-colors mt-6 flex items-center justify-center gap-2 shadow-md">
+                <Lock size={18} /> ログイン
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 3. ログイン成功後のメイン画面
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans">
+      {/* ★ 管理者用トップバー（画面の一番上に追加） */}
+      <div className="bg-slate-900 text-slate-300 px-4 py-2 flex justify-between items-center text-xs sm:text-sm">
+        <div className="flex items-center gap-2">
+          <Lock size={14} className="text-emerald-400" /> 
+          <span>ログイン中: <strong className="text-white">{currentUser.email}</strong></span>
+        </div>
+        <div className="flex items-center gap-4">
+          <button type="button" onClick={() => setIsUserModalOpen(true)} className="flex items-center gap-1 hover:text-white transition-colors">
+            <UserPlus size={14} /> ユーザー追加
+          </button>
+          <button type="button" onClick={logout} className="flex items-center gap-1 hover:text-rose-400 transition-colors">
+            <LogOut size={14} /> ログアウト
+          </button>
+        </div>
+      </div>
+
       {dialogConfig.isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4" style={{zIndex: 9999}}>
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden animate-fade-in">
@@ -440,6 +526,58 @@ export default function App() {
       </main>
 
       {/* --- モーダル群 --- */}
+
+      {/* ★ 新規ユーザー追加モーダル */}
+      {isUserModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[80] p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
+            <div className="bg-slate-800 px-6 py-4 flex justify-between items-center text-white">
+              <h2 className="font-bold text-lg flex items-center gap-2"><UserPlus size={20} /> 新規スタッフ追加</h2>
+              <button type="button" onClick={() => {setIsUserModalOpen(false); setRegMessage({type:'', text:''});}}><X size={24} /></button>
+            </div>
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              setRegMessage({ type: '', text: '' });
+              try {
+                await registerNewUser(regEmail, regPassword);
+                setRegMessage({ type: 'success', text: 'ユーザーを作成しました！' });
+                setRegEmail('');
+                setRegPassword('');
+              } catch (err: any) {
+                setRegMessage({ type: 'error', text: 'エラーが発生しました。パスワードは6文字以上で入力してください。' });
+              }
+            }} className="p-6">
+              <p className="text-sm text-slate-600 mb-4">新しいスタッフのログイン用アカウントを作成します。（※個人のメールアドレスではなく、架空のシステム用アドレスをおすすめします）</p>
+              
+              {regMessage.text && (
+                <div className={`p-3 rounded-lg text-sm mb-4 flex items-center gap-2 font-bold ${regMessage.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-600 border border-red-200'}`}>
+                  {regMessage.type === 'success' ? <CheckCircle2 size={16}/> : <AlertTriangle size={16}/>}
+                  {regMessage.text}
+                </div>
+              )}
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">ログイン用アドレス</label>
+                  <input type="email" required className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500" value={regEmail} onChange={(e) => setRegEmail(e.target.value)} placeholder="staff1@waken.local" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">初期パスワード (6文字以上)</label>
+                  <input type="password" required minLength={6} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500" value={regPassword} onChange={(e) => setRegPassword(e.target.value)} placeholder="••••••••" />
+                </div>
+              </div>
+              <div className="mt-6 flex justify-end gap-3">
+                <button type="button" onClick={() => {setIsUserModalOpen(false); setRegMessage({type:'', text:''});}} className="px-4 py-2 text-slate-600">閉じる</button>
+                <button type="submit" className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-bold flex items-center gap-2 shadow-md">
+                  <UserPlus size={18} /> 作成する
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 以下、既存の各種モーダル */}
       {viewingStockType && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4" style={{zIndex: 50}}>
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col animate-fade-in overflow-hidden relative">
